@@ -5,6 +5,8 @@ import 'core/routes/app_routes.dart';
 import 'home/pages/home_page.dart';
 import 'modules/auth/presentation/pages/login_page.dart';
 import 'modules/auth/presentation/pages/cadastro_page.dart';
+import 'modules/veiculos/presentation/pages/listar_veiculos_page.dart';
+import 'modules/veiculos/presentation/pages/editar_veiculo_page.dart';
 
 class AppWidget extends StatelessWidget {
   const AppWidget({super.key});
@@ -20,6 +22,8 @@ class AppWidget extends StatelessWidget {
         AppRoutes.login: (_) => const LoginPage(),
         AppRoutes.cadastro: (_) => const CadastroPage(),
         AppRoutes.home: (_) => const HomePage(),
+        AppRoutes.veiculos: (_) => const ListarVeiculosPage(),
+        AppRoutes.novoVeiculo: (_) => const EditarVeiculoPage(),
       },
     );
   }
