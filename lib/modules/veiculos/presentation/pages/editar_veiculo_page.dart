@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-import '../../presentation/viewmodels/editar_veiculo_viewmodel.dart';
+import '../viewmodels/editar_veiculo_viewmodel.dart';
 
 class EditarVeiculoPage extends ConsumerStatefulWidget {
   const EditarVeiculoPage({super.key});
@@ -17,7 +16,8 @@ class _EditarVeiculoPageState extends ConsumerState<EditarVeiculoPage> {
   final _marcaCtrl = TextEditingController();
   final _placaCtrl = TextEditingController();
   final _anoCtrl = TextEditingController();
-  String? _tipo;
+
+  String? _combustivel;
 
   @override
   void dispose() {
@@ -31,76 +31,130 @@ class _EditarVeiculoPageState extends ConsumerState<EditarVeiculoPage> {
   Future<void> _salvar() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final vm = ref.read(editarVeiculoViewModelProvider.notifier);
-    await vm.criar(
-      modelo: _modeloCtrl.text.trim(),
-      marca: _marcaCtrl.text.trim(),
-      placa: _placaCtrl.text.trim(),
-      ano: _anoCtrl.text.trim(),
-      tipoCombustivel: _tipo!,
-    );
+    await ref
+        .read(editarVeiculoViewModelProvider.notifier)
+        .salvarVeiculo(
+          modelo: _modeloCtrl.text.trim(),
+          marca: _marcaCtrl.text.trim(),
+          placa: _placaCtrl.text.trim(),
+          ano: _anoCtrl.text.trim(),
+          tipoCombustivel: _combustivel!,
+        );
 
     if (mounted) Navigator.pop(context);
   }
 
   @override
   Widget build(BuildContext context) {
+    final tema = Theme.of(context);
     final carregando = ref.watch(editarVeiculoViewModelProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Cadastrar Veículo")),
+      appBar: AppBar(title: const Text("Novo Veículo")),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              TextFormField(
-                controller: _modeloCtrl,
-                decoration: const InputDecoration(labelText: "Modelo"),
-                validator: (v) => v!.isEmpty ? "Informe o modelo" : null,
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _marcaCtrl,
-                decoration: const InputDecoration(labelText: "Marca"),
-                validator: (v) => v!.isEmpty ? "Informe a marca" : null,
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _placaCtrl,
-                decoration: const InputDecoration(labelText: "Placa"),
-                validator: (v) => v!.isEmpty ? "Informe a placa" : null,
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _anoCtrl,
-                decoration: const InputDecoration(labelText: "Ano"),
-                keyboardType: TextInputType.number,
-                validator: (v) => v!.isEmpty ? "Informe o ano" : null,
-              ),
-              const SizedBox(height: 16),
-              DropdownButtonFormField<String>(
-                decoration: const InputDecoration(
-                  labelText: "Tipo de combustível",
-                ),
-                items: const [
-                  DropdownMenuItem(value: "Gasolina", child: Text("Gasolina")),
-                  DropdownMenuItem(value: "Etanol", child: Text("Etanol")),
-                  DropdownMenuItem(value: "Diesel", child: Text("Diesel")),
-                  DropdownMenuItem(value: "GNV", child: Text("GNV")),
-                ],
-                onChanged: (v) => setState(() => _tipo = v),
-                validator: (v) => v == null ? "Selecione um tipo" : null,
-              ),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: carregando ? null : _salvar,
-                child: carregando
-                    ? const CircularProgressIndicator()
-                    : const Text("Salvar"),
+        padding: const EdgeInsets.all(26),
+        child: Container(
+          padding: const EdgeInsets.all(26),
+          decoration: BoxDecoration(
+            color: tema.colorScheme.surface,
+            borderRadius: BorderRadius.circular(26),
+            border: Border.all(color: tema.colorScheme.secondary, width: 1.2),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: .08),
+                blurRadius: 18,
+                offset: const Offset(0, 10),
               ),
             ],
+          ),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                Text(
+                  "Cadastrar Veículo",
+                  style: tema.textTheme.titleLarge?.copyWith(
+                    letterSpacing: 0.6,
+                  ),
+                ),
+                const SizedBox(height: 25),
+                TextFormField(
+                  controller: _modeloCtrl,
+                  decoration: const InputDecoration(
+                    labelText: "Modelo",
+                    prefixIcon: Icon(Icons.drive_eta),
+                  ),
+                  validator: (v) =>
+                      v == null || v.isEmpty ? "Informe o modelo" : null,
+                ),
+                const SizedBox(height: 18),
+                TextFormField(
+                  controller: _marcaCtrl,
+                  decoration: const InputDecoration(
+                    labelText: "Marca",
+                    prefixIcon: Icon(Icons.factory),
+                  ),
+                  validator: (v) =>
+                      v == null || v.isEmpty ? "Informe a marca" : null,
+                ),
+                const SizedBox(height: 18),
+                TextFormField(
+                  controller: _placaCtrl,
+                  decoration: const InputDecoration(
+                    labelText: "Placa",
+                    prefixIcon: Icon(Icons.numbers),
+                  ),
+                  validator: (v) =>
+                      v == null || v.isEmpty ? "Informe a placa" : null,
+                ),
+                const SizedBox(height: 18),
+                TextFormField(
+                  controller: _anoCtrl,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                    labelText: "Ano",
+                    prefixIcon: Icon(Icons.event),
+                  ),
+                  validator: (v) =>
+                      v == null || v.isEmpty ? "Informe o ano" : null,
+                ),
+                const SizedBox(height: 18),
+                DropdownButtonFormField<String>(
+                  decoration: const InputDecoration(
+                    labelText: "Tipo de combustível",
+                    prefixIcon: Icon(Icons.local_gas_station),
+                  ),
+                  items: const [
+                    DropdownMenuItem(
+                      value: "Gasolina",
+                      child: Text("Gasolina"),
+                    ),
+                    DropdownMenuItem(value: "Etanol", child: Text("Etanol")),
+                    DropdownMenuItem(value: "Diesel", child: Text("Diesel")),
+                    DropdownMenuItem(value: "GNV", child: Text("GNV")),
+                  ],
+                  onChanged: (v) => setState(() => _combustivel = v),
+                  validator: (v) => v == null ? "Selecione um tipo" : null,
+                ),
+                const SizedBox(height: 32),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: carregando ? null : _salvar,
+                    child: carregando
+                        ? const SizedBox(
+                            height: 22,
+                            width: 22,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : const Text("Salvar"),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

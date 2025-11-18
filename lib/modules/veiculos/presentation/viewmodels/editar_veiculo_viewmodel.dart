@@ -1,13 +1,20 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../data/veiculo_repository.dart';
 import '../../veiculos_module.dart';
 
+final editarVeiculoViewModelProvider =
+    StateNotifierProvider.autoDispose<EditarVeiculoViewModel, bool>((ref) {
+      final repo = ref.watch(veiculoRepositoryProvider);
+      return EditarVeiculoViewModel(repo);
+    });
+
 class EditarVeiculoViewModel extends StateNotifier<bool> {
-  EditarVeiculoViewModel(this.ref) : super(false);
+  final VeiculoRepository _repository;
 
-  final Ref ref;
+  EditarVeiculoViewModel(this._repository) : super(false);
 
-  Future<void> criar({
+  Future<void> salvarVeiculo({
     required String modelo,
     required String marca,
     required String placa,
@@ -15,10 +22,8 @@ class EditarVeiculoViewModel extends StateNotifier<bool> {
     required String tipoCombustivel,
   }) async {
     state = true;
-
     try {
-      final repo = ref.read(veiculoRepositoryProvider);
-      await repo.criarVeiculo(
+      await _repository.criarVeiculo(
         modelo: modelo,
         marca: marca,
         placa: placa,
@@ -30,8 +35,3 @@ class EditarVeiculoViewModel extends StateNotifier<bool> {
     }
   }
 }
-
-final editarVeiculoViewModelProvider =
-    StateNotifierProvider<EditarVeiculoViewModel, bool>((ref) {
-      return EditarVeiculoViewModel(ref);
-    });
